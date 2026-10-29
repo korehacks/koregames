@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KØRE-GAMES - Play Granny v1.5 & Slendrina Online</title>
+  
+  <!-- Tailwind CSS Play CDN (JS Engine) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS Precompiled Stylesheet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" integrity="sha512-wnea99cKBU3JHveGeL38qwU9Z24NE201mVC65FCbGh8OZxLpLJ80g4kD2L/5L/X7d7sCjC3n2qQ/gYg3X/x3aA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Google Fonts: Fredoka & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            poki: {
+              bg: '#f0f3f8',
+              card: '#ffffff',
+              purple: '#6c5ce7',
+              purpleDark: '#5641e0',
+              blue: '#0984e3',
+              pink: '#fd79a8',
+              yellow: '#fdcb6e',
+              green: '#00b894',
+              coral: '#ff7675',
+              text: '#2d3436',
+              subtext: '#636e72'
+            }
+          },
+          fontFamily: {
+            display: ['Fredoka', 'sans-serif'],
+            body: ['Outfit', 'sans-serif']
+          },
+          boxShadow: {
+            'poki': '0 8px 24px rgba(108, 92, 231, 0.12)',
+            'poki-hover': '0 16px 32px rgba(108, 92, 231, 0.22)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Embedded Internal Styles -->
+  <style>
+    body {
+      background-color: #f0f3f8;
+      font-family: 'Outfit', sans-serif;
+      touch-action: manipulation;
+    }
+
+    /* 3D Button Press Effect - Green */
+    .play-btn-green {
+      transition: all 0.15s ease;
+      box-shadow: 0 8px 0 #008f73, 0 12px 20px rgba(0, 184, 148, 0.35);
+    }
+    .play-btn-green:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #008f73, 0 16px 24px rgba(0, 184, 148, 0.45);
+    }
+    .play-btn-green:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #008f73, 0 4px 10px rgba(0, 184, 148, 0.2);
+    }
+
+    /* 3D Button Press Effect - Purple */
+    .play-btn-purple {
+      transition: all 0.15s ease;
+      box-shadow: 0 8px 0 #4834d4, 0 12px 20px rgba(108, 92, 231, 0.35);
+    }
+    .play-btn-purple:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #4834d4, 0 16px 24px rgba(108, 92, 231, 0.45);
+    }
+    .play-btn-purple:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #4834d4, 0 4px 10px rgba(108, 92, 231, 0.2);
+    }
+
+    /* Wiggle Animation */
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    .wiggle-badge {
+      animation: wiggle 2s infinite ease-in-out;
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e2e8f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #6c5ce7;
+      border-radius: 9999px;
+    }
+
+    /* Poki Card Micro Interactions */
+    .poki-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .poki-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* Game Viewport explicit height fix for mobile browsers */
+    .game-canvas-container {
+      width: 100%;
+      height: 70vh;
+      min-height: 420px;
+      max-height: 850px;
+    }
+
+    @media (min-width: 640px) {
+      .game-canvas-container {
+        height: 80vh;
+        min-height: 520px;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="bg-white sticky top-0 z-40 shadow-sm border-b border-gray-200/80 px-3 sm:px-6 py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-2 group shrink-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-poki-purple to-poki-pink flex items-center justify-center text-white font-display text-xl sm:text-2xl font-bold shadow-md transform group-hover:rotate-6 transition">
+          K
+        </div>
+        <span class="font-display text-xl sm:text-2xl font-black tracking-tight text-poki-purple group-hover:text-poki-purpleDark transition">
+          kore<span class="text-poki-pink">-games</span>
+        </span>
+      </a>
+
+      <!-- Desktop Search Bar -->
+      <div class="flex-1 max-w-md hidden md:block">
+        <div class="relative">
+          <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+          <input 
+            type="text" 
+            id="searchInput"
+            onkeyup="filterGames()"
+            placeholder="Search Granny, Slendrina, WebGL games..." 
+            class="w-full pl-11 pr-4 py-2.5 bg-gray-100 hover:bg-gray-200/70 focus:bg-white rounded-full text-sm font-medium border-2 border-transparent focus:border-poki-purple outline-none transition"
+          >
+        </div>
+      </div>
+
+      <!-- Mobile Search Toggle & Badges -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="toggleMobileSearch()" class="md:hidden w-9 h-9 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-lg active:scale-95 transition" aria-label="Search">
+          <i class="ph-bold ph-magnifying-glass"></i>
+        </button>
+
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-poki-purple/10 text-poki-purple font-display font-bold text-xs rounded-full">
+          <i class="ph-fill ph-lightning text-sm text-poki-yellow"></i>
+          <span>UNBLOCKED</span>
+        </div>
+
+        <a href="#featuredSection" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-poki-purple text-white font-display font-bold text-xs sm:text-sm rounded-full hover:bg-poki-purpleDark transition shadow-md shadow-poki-purple/20">
+          <i class="ph-bold ph-game-controller text-base sm:text-lg"></i>
+          <span>TOP GAMES</span>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Mobile Search Expandable Bar -->
+    <div id="mobileSearchBar" class="hidden md:hidden pt-2 pb-1">
+      <div class="relative">
+        <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input 
+          type="text" 
+          id="mobileSearchInput"
+          onkeyup="filterGamesMobile()"
+          placeholder="Search games..." 
+          class="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-full text-xs font-medium border border-gray-200 focus:border-poki-purple outline-none"
+        >
+      </div>
+    </div>
+  </header>
+
+  <!-- CATEGORY FILTER PILLS -->
+  <nav class="bg-white border-b border-gray-200/60 py-2 px-3 overflow-x-auto no-scrollbar">
+    <div class="max-w-7xl mx-auto flex items-center gap-1.5 text-xs font-display font-bold min-w-max">
+      <span class="text-gray-400 px-1.5 flex items-center gap-1 text-[11px]">
+        <i class="ph-bold ph-trend-up text-poki-pink"></i> HOT:
+      </span>
+      <a href="game/" class="px-3 py-1 rounded-full bg-poki-purple text-white shadow-sm hover:opacity-90 active:scale-95 transition">🔥 Granny v1.5</a>
+      <a href="slendrinatc/" class="px-3 py-1 rounded-full bg-poki-pink text-white shadow-sm hover:opacity-90 active:scale-95 transition">👻 Slendrina</a>
+      <a href="https://fiveplay.lol" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-full bg-poki-blue text-white shadow-sm hover:opacity-90 active:scale-95 transition">🚗 GTA V</a>
+      <a href="#allGames" class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-poki-purple/10 active:scale-95 transition">🕹️ WebGL</a>
+    </div>
+  </nav>
+
+  <!-- MAIN PAGE CONTENT HUB -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-grow space-y-6 sm:space-y-10" id="featuredSection">
+
+    <!-- EMBEDDED GAME PLAYER VIEWPORT (EXPLICIT CANVAS SIZE FIX) -->
+    <section id="gameEmbedViewport" class="bg-gray-900 rounded-2xl sm:rounded-3xl p-2 sm:p-4 shadow-2xl border-2 sm:border-4 border-poki-purple relative overflow-hidden hidden transition-all duration-300">
+      
+      <!-- Embed Player Header Controls -->
+      <div class="flex items-center justify-between gap-2 mb-2 px-1 text-white">
+        <div class="flex items-center gap-2 min-w-0">
+          <button onclick="closeGameEmbed()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-base sm:text-lg shrink-0 transition" title="Close Game">
+            ✕
+          </button>
+          <div class="truncate">
+            <h2 id="embedGameTitle" class="font-display font-bold text-sm sm:text-lg leading-tight text-white truncate">Playing Game</h2>
+            <p id="embedGamePath" class="text-[10px] sm:text-xs text-gray-400 font-mono truncate">game/</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="reloadEmbedFrame()" class="p-1.5 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl text-xs font-display font-bold flex items-center gap-1 transition" title="Reload">
+            <i class="ph-bold ph-arrows-counter-clockwise text-sm"></i>
+            <span class="hidden sm:inline">Reload</span>
+          </button>
+
+          <a id="embedDirectLink" href="game/" target="_blank" class="p-1.5 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl text-xs font-display font-bold flex items-center gap-1 transition" title="Open Direct">
+            <i class="ph-bold ph-arrow-square-out text-sm"></i>
+            <span class="hidden sm:inline">Direct</span>
+          </a>
+
+          <button onclick="toggleEmbedFullscreen()" class="px-2.5 py-1.5 bg-poki-purple hover:bg-poki-purpleDark text-white rounded-lg sm:rounded-xl text-xs font-display font-bold flex items-center gap-1 transition shadow-sm">
+            <i class="ph-bold ph-corners-out text-sm"></i>
+            <span class="hidden sm:inline">Fullscreen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Explicit Sized Canvas Frame Container -->
+      <div class="game-canvas-container relative rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-inner border border-white/10">
+        <iframe 
+          id="gameIframe" 
+          src="about:blank" 
+          class="w-full h-full border-0 absolute inset-0 block bg-black"
+          allow="autoplay; gamepad; fullscreen; pointer-lock; keyboard"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </section>
+
+    <!-- HERO 1: GRANNY WEB RECOMP V1.5 -->
+    <section class="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 lg:p-8 shadow-poki border-2 sm:border-4 border-poki-purple/30 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center relative z-10">
+        
+        <!-- Banner Thumbnail -->
+        <div class="lg:col-span-5 relative group">
+          <div class="aspect-[16/10] sm:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border-2 sm:border-4 border-gray-100 bg-gray-900 relative">
+            <img 
+              src="https://m.media-amazon.com/images/M/MV5BZjI4ZWZlZGEtNDljZi00YTJjLTg0NjctYzg3ZGRhMDU0YTkxXkEyXkFqcGc@._V1_QL75_UX388_.jpg" 
+              alt="Granny Web Recomp v1.5 Thumbnail"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onerror="this.src='https://placehold.co/800x600/6c5ce7/ffffff?text=Granny+v1.5';"
+            />
+            
+            <div class="absolute top-2.5 left-2.5 bg-poki-yellow text-gray-900 font-display font-bold text-[10px] sm:text-xs px-2.5 py-0.5 sm:py-1 rounded-full shadow-md flex items-center gap-1">
+              <i class="ph-fill ph-star text-amber-600"></i>
+              <span>FEATURED #1</span>
+            </div>
+
+            <div class="absolute bottom-2.5 left-2.5 bg-black/75 backdrop-blur text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-poki-green animate-pulse"></span>
+              <span>v1.5 RECOMP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details & Play Button -->
+        <div class="lg:col-span-7 space-y-3 sm:space-y-5">
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-purple/10 text-poki-purple font-display font-bold text-[11px] sm:text-xs rounded-full">
+              BY DVLOPER
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-gray-100 text-gray-700 font-display font-bold text-[11px] sm:text-xs rounded-full">
+              RECOMP BY KOREHACKS
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-green/10 text-poki-green font-display font-bold text-[11px] sm:text-xs rounded-full">
+              4.9 ★ (18.9k)
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-pink/10 text-poki-pink font-display font-bold text-[11px] sm:text-xs rounded-full">
+              WEBGL
+            </span>
+          </div>
+
+          <div>
+            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-display font-black text-gray-900 leading-tight">
+              Granny Web Recomp <span class="text-poki-purple">v1.5</span>
+            </h1>
+            <p class="text-poki-subtext text-xs sm:text-base mt-1 sm:mt-2 font-medium leading-relaxed">
+              Escape Granny's house within 5 days. Original game created by <strong>DVloper</strong>, recompilation by <strong>korehacks</strong> with smooth 60 FPS WebGL performance!
+            </p>
+          </div>
+
+          <!-- PLAY BUTTON -->
+          <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
+            <button 
+              onclick="launchEmbeddedGame('game/', 'Granny Web Recomp v1.5')" 
+              class="play-btn-green flex-1 bg-poki-green text-white font-display font-black text-xl sm:text-2xl tracking-wider py-3.5 sm:py-5 px-6 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 text-center uppercase cursor-pointer"
+            >
+              <i class="ph-fill ph-play-circle text-2xl sm:text-4xl"></i>
+              <span>PLAY GRANNY NOW</span>
+            </button>
+
+            <button 
+              onclick="openPreviewModal('granny')"
+              class="py-2.5 sm:py-4 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-display font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-gray-200 flex items-center justify-center gap-2 transition"
+            >
+              <i class="ph-bold ph-info text-base sm:text-lg"></i>
+              <span>Controls</span>
+            </button>
+          </div>
+
+          <!-- Specs Summary -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-1 text-center text-[10px] sm:text-xs font-display">
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">FOLDER</span>
+              <span class="font-bold text-gray-800 truncate block">game/</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">GOAL</span>
+              <span class="font-bold text-poki-green truncate block">Escape House</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">INPUT</span>
+              <span class="font-bold text-poki-purple truncate block">Touch / WASD</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HERO 2: SLENDRINA THE CELLAR -->
+    <section class="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 lg:p-8 shadow-poki border-2 sm:border-4 border-poki-pink/30 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center relative z-10">
+        
+        <!-- Banner Thumbnail -->
+        <div class="lg:col-span-5 relative group">
+          <div class="aspect-[16/10] sm:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border-2 sm:border-4 border-gray-100 bg-slate-900 relative">
+            <img 
+              src="https://camo.githubusercontent.com/bfc4e070038d4925d62e9b5d59cb736a0f5a6081b1bf7f972d878858e65375bf/68747470733a2f2f656e637279707465642d74626e302e677374617469632e636f6d2f696d616765733f713d74626e3a414e64394763544c6661667263463776765a5664776e56364850586e6630526e4b42356b5851745f62666245596c5862714e4d5a7a654539632d644b75565126733d3130" 
+              alt="Slendrina Cover"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onerror="this.src='https://placehold.co/800x600/fd79a8/ffffff?text=Slendrina+Cellar';"
+            />
+            
+            <div class="absolute top-2.5 left-2.5 bg-poki-pink text-white font-display font-bold text-[10px] sm:text-xs px-2.5 py-0.5 sm:py-1 rounded-full shadow-md flex items-center gap-1">
+              <i class="ph-fill ph-ghost text-white"></i>
+              <span>FEATURED #2</span>
+            </div>
+
+            <div class="absolute bottom-2.5 left-2.5 bg-black/75 backdrop-blur text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-poki-pink animate-pulse"></span>
+              <span>CELLAR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details & Play Button -->
+        <div class="lg:col-span-7 space-y-3 sm:space-y-5">
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-pink/10 text-poki-pink font-display font-bold text-[11px] sm:text-xs rounded-full">
+              BY DVLOPER
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-gray-100 text-gray-700 font-display font-bold text-[11px] sm:text-xs rounded-full">
+              WEB PORT BY KOREHACKS
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-yellow/20 text-amber-700 font-display font-bold text-[11px] sm:text-xs rounded-full">
+              4.8 ★ (12.4k)
+            </span>
+          </div>
+
+          <div>
+            <h2 class="text-2xl sm:text-4xl lg:text-5xl font-display font-black text-gray-900 leading-tight">
+              Slendrina: <span class="text-poki-pink">The Cellar</span>
+            </h2>
+            <p class="text-poki-subtext text-xs sm:text-base mt-1 sm:mt-2 font-medium leading-relaxed">
+              Find 8 missing books in the dark cellar labyrinths while avoiding Slendrina. Original game by <strong>DVloper</strong>, web port by <strong>korehacks</strong>.
+            </p>
+          </div>
+
+          <!-- PLAY BUTTON -->
+          <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
+            <button 
+              onclick="launchEmbeddedGame('slendrinatc/', 'Slendrina: The Cellar')" 
+              class="play-btn-purple flex-1 bg-poki-pink text-white font-display font-black text-xl sm:text-2xl tracking-wider py-3.5 sm:py-5 px-6 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 text-center uppercase cursor-pointer"
+            >
+              <i class="ph-fill ph-play-circle text-2xl sm:text-4xl"></i>
+              <span>PLAY SLENDRINA NOW</span>
+            </button>
+
+            <button 
+              onclick="openPreviewModal('slendrina')"
+              class="py-2.5 sm:py-4 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-display font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-gray-200 flex items-center justify-center gap-2 transition"
+            >
+              <i class="ph-bold ph-info text-base sm:text-lg"></i>
+              <span>Controls</span>
+            </button>
+          </div>
+
+          <!-- Specs Summary -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-1 text-center text-[10px] sm:text-xs font-display">
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">FOLDER</span>
+              <span class="font-bold text-gray-800 truncate block">slendrinatc/</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">GOAL</span>
+              <span class="font-bold text-poki-pink truncate block">8 Books</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">INPUT</span>
+              <span class="font-bold text-poki-purple truncate block">Touch / WASD</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HERO 3: GTA V -->
+    <section class="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 lg:p-8 shadow-poki border-2 sm:border-4 border-poki-blue/30 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center relative z-10">
+        
+        <!-- Banner Thumbnail -->
+        <div class="lg:col-span-5 relative group">
+          <div class="aspect-[16/10] sm:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border-2 sm:border-4 border-gray-100 bg-black relative">
+            <img 
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUBLbuaIDCr1X0c-9fS0rwIVYbkgS4VVaFQJBQTv5RYg&s=10" 
+              alt="GTA V Cover"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onerror="this.src='https://placehold.co/800x600/0984e3/ffffff?text=GTA+V';"
+            />
+            
+            <div class="absolute top-2.5 left-2.5 bg-poki-blue text-white font-display font-bold text-[10px] sm:text-xs px-2.5 py-0.5 sm:py-1 rounded-full shadow-md flex items-center gap-1">
+              <i class="ph-fill ph-car text-white"></i>
+              <span>EXTERNAL</span>
+            </div>
+
+            <div class="absolute bottom-2.5 left-2.5 bg-black/75 backdrop-blur text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-poki-blue animate-pulse"></span>
+              <span>STREAM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details & Play Button -->
+        <div class="lg:col-span-7 space-y-3 sm:space-y-5">
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-blue/10 text-poki-blue font-display font-bold text-[11px] sm:text-xs rounded-full">
+              ROCKSTAR GAMES
+            </span>
+            <span class="px-2.5 py-0.5 sm:py-1 bg-poki-yellow/20 text-amber-700 font-display font-bold text-[11px] sm:text-xs rounded-full">
+              4.9 ★ (45.2k)
+            </span>
+          </div>
+
+          <div>
+            <h2 class="text-2xl sm:text-4xl lg:text-5xl font-display font-black text-gray-900 leading-tight">
+              Grand Theft Auto <span class="text-poki-blue">V</span>
+            </h2>
+            <p class="text-poki-subtext text-xs sm:text-base mt-1 sm:mt-2 font-medium leading-relaxed">
+              Play GTA V in your browser! Grand Theft Auto V is a trademark and copyright of <strong>Rockstar Games / Take-Two Interactive</strong>.
+            </p>
+          </div>
+
+          <!-- PLAY BUTTON -->
+          <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
+            <button 
+              onclick="launchEmbeddedGame('https://fiveplay.lol', 'Grand Theft Auto V')" 
+              class="play-btn-purple flex-1 !bg-poki-blue text-white font-display font-black text-xl sm:text-2xl tracking-wider py-3.5 sm:py-5 px-6 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 text-center uppercase cursor-pointer"
+            >
+              <i class="ph-fill ph-play-circle text-2xl sm:text-4xl"></i>
+              <span>PLAY GTA V EMBEDDED</span>
+            </button>
+          </div>
+
+          <!-- Specs Summary -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-1 text-center text-[10px] sm:text-xs font-display">
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">SOURCE</span>
+              <span class="font-bold text-gray-800 truncate block">fiveplay.lol</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">GENRE</span>
+              <span class="font-bold text-poki-blue truncate block">Open World</span>
+            </div>
+            <div class="p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-100">
+              <span class="block text-gray-400 font-semibold">INPUT</span>
+              <span class="font-bold text-poki-purple truncate block">Touch / Drive</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ALL ACTIVE GAMES GRID -->
+    <section class="space-y-3 sm:space-y-4" id="allGames">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl sm:text-2xl font-display font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2">
+          <i class="ph-fill ph-fire text-poki-pink text-xl sm:text-2xl"></i>
+          Games Grid
+        </h2>
+        <span class="text-xs font-display font-bold text-poki-purple">3 Games Active</span>
+      </div>
+
+      <!-- Game Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6" id="gamesGrid">
+        
+        <!-- Tile 1: Granny v1.5 -->
+        <button onclick="launchEmbeddedGame('game/', 'Granny Web Recomp v1.5')" class="poki-card bg-white rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-poki-purple/40 shadow-sm hover:shadow-poki group flex flex-col p-3 sm:p-4 space-y-2.5 sm:space-y-3 text-left w-full">
+          <div class="aspect-[16/10] sm:aspect-[4/3] bg-gray-900 rounded-xl sm:rounded-2xl relative overflow-hidden w-full">
+            <img src="https://m.media-amazon.com/images/M/MV5BZjI4ZWZlZGEtNDljZi00YTJjLTg0NjctYzg3ZGRhMDU0YTkxXkEyXkFqcGc@._V1_QL75_UX388_.jpg" alt="Granny v1.5" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+            <span class="absolute top-2 left-2 bg-poki-purple text-white font-display text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">v1.5</span>
+          </div>
+          <div class="flex-grow flex flex-col justify-between w-full">
+            <div>
+              <h3 class="font-display font-bold text-base sm:text-lg text-gray-900 group-hover:text-poki-purple transition">Granny Recomp v1.5</h3>
+              <p class="text-[11px] sm:text-xs text-gray-400 font-medium mt-0.5">game/</p>
+            </div>
+            <div class="mt-3 sm:mt-4 flex items-center justify-between text-xs font-bold text-poki-green bg-poki-green/10 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl w-full">
+              <span>PLAY EMBEDDED</span>
+              <i class="ph-bold ph-caret-right"></i>
+            </div>
+          </div>
+        </button>
+
+        <!-- Tile 2: Slendrina The Cellar -->
+        <button onclick="launchEmbeddedGame('slendrinatc/', 'Slendrina: The Cellar')" class="poki-card bg-white rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-poki-pink/40 shadow-sm hover:shadow-poki group flex flex-col p-3 sm:p-4 space-y-2.5 sm:space-y-3 text-left w-full">
+          <div class="aspect-[16/10] sm:aspect-[4/3] bg-slate-900 rounded-xl sm:rounded-2xl relative overflow-hidden w-full">
+            <img src="https://camo.githubusercontent.com/bfc4e070038d4925d62e9b5d59cb736a0f5a6081b1bf7f972d878858e65375bf/68747470733a2f2f656e637279707465642d74626e302e677374617469632e636f6d2f696d616765733f713d74626e3a414e64394763544c6661667263463776765a5664776e56364850586e6630526e4b42356b5851745f62666245596c5862714e4d5a7a654539632d644b75565126733d3130" alt="Slendrina The Cellar" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+            <span class="absolute top-2 left-2 bg-poki-pink text-white font-display text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">CELLAR</span>
+          </div>
+          <div class="flex-grow flex flex-col justify-between w-full">
+            <div>
+              <h3 class="font-display font-bold text-base sm:text-lg text-gray-900 group-hover:text-poki-pink transition">Slendrina: The Cellar</h3>
+              <p class="text-[11px] sm:text-xs text-gray-400 font-medium mt-0.5">slendrinatc/</p>
+            </div>
+            <div class="mt-3 sm:mt-4 flex items-center justify-between text-xs font-bold text-poki-pink bg-poki-pink/10 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl w-full">
+              <span>PLAY EMBEDDED</span>
+              <i class="ph-bold ph-caret-right"></i>
+            </div>
+          </div>
+        </button>
+
+        <!-- Tile 3: GTA V External Embedded -->
+        <button onclick="launchEmbeddedGame('https://fiveplay.lol', 'Grand Theft Auto V')" class="poki-card bg-white rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-poki-blue/40 shadow-sm hover:shadow-poki group flex flex-col p-3 sm:p-4 space-y-2.5 sm:space-y-3 text-left w-full">
+          <div class="aspect-[16/10] sm:aspect-[4/3] bg-black rounded-xl sm:rounded-2xl relative overflow-hidden w-full">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUBLbuaIDCr1X0c-9fS0rwIVYbkgS4VVaFQJBQTv5RYg&s=10" alt="GTA V" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+            <span class="absolute top-2 left-2 bg-poki-blue text-white font-display text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">WEB STREAM</span>
+          </div>
+          <div class="flex-grow flex flex-col justify-between w-full">
+            <div>
+              <h3 class="font-display font-bold text-base sm:text-lg text-gray-900 group-hover:text-poki-blue transition">GTA V Online</h3>
+              <p class="text-[11px] sm:text-xs text-gray-400 font-medium mt-0.5">fiveplay.lol</p>
+            </div>
+            <div class="mt-3 sm:mt-4 flex items-center justify-between text-xs font-bold text-poki-blue bg-poki-blue/10 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl w-full">
+              <span>PLAY EMBEDDED</span>
+              <i class="ph-bold ph-caret-right"></i>
+            </div>
+          </div>
+        </button>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-gray-200/80 py-6 px-4 mt-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-poki-purple text-white flex items-center justify-center font-display font-bold text-sm">
+          K
+        </div>
+        <span class="font-display font-bold text-gray-800 text-sm">kore-games</span>
+      </div>
+      <div class="text-xs text-gray-400 font-medium space-y-1">
+        <p>© 2026 korehacks. All games run directly in your web browser.</p>
+        <p class="text-[11px] text-gray-400">
+          Credits: <strong>Granny</strong> & <strong>Slendrina</strong> originally created by <strong>DVloper</strong>. 
+          <strong>GTA V</strong> created by <strong>Rockstar Games</strong>.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CONTROLS & INFO MODAL -->
+  <div id="previewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative space-y-4 border-4 border-poki-purple">
+      <button onclick="closePreviewModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div id="modalIcon" class="w-12 h-12 rounded-2xl bg-poki-purple flex items-center justify-center text-white font-display text-2xl font-bold">
+          🎮
+        </div>
+        <div>
+          <h3 id="modalTitle" class="font-display font-bold text-xl text-gray-900">Game Controls</h3>
+          <p class="text-xs text-poki-subtext">How to play on Mobile & Desktop</p>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs font-medium text-gray-600 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+        <div class="flex justify-between py-1 border-b border-gray-200/60">
+          <span class="text-gray-400">Mobile Movement</span>
+          <span class="font-bold text-gray-800">On-Screen Joystick</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-gray-200/60">
+          <span class="text-gray-400">Desktop Movement</span>
+          <span class="font-bold text-gray-800">WASD / Arrow Keys</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-gray-200/60">
+          <span class="text-gray-400">Camera / Look</span>
+          <span class="font-bold text-gray-800">Touch Drag / Mouse</span>
+        </div>
+        <div class="flex justify-between py-1">
+          <span class="text-gray-400">Interact / Grab</span>
+          <span class="font-bold text-gray-800">Tap / E / Click</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button id="modalPlayLink" class="flex-1 py-3.5 bg-poki-green text-white font-display font-black text-lg text-center rounded-xl shadow-md uppercase hover:opacity-95 transition cursor-pointer">
+          PLAY GAME NOW
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVITY SCRIPT -->
+  <script>
+    function toggleMobileSearch() {
+      const bar = document.getElementById('mobileSearchBar');
+      bar.classList.toggle('hidden');
+      if (!bar.classList.contains('hidden')) {
+        document.getElementById('mobileSearchInput').focus();
+      }
+    }
+
+    // Embedded Game Player Logic
+    function launchEmbeddedGame(gameUrl, title) {
+      const embedViewport = document.getElementById('gameEmbedViewport');
+      const gameIframe = document.getElementById('gameIframe');
+      const embedGameTitle = document.getElementById('embedGameTitle');
+      const embedGamePath = document.getElementById('embedGamePath');
+      const embedDirectLink = document.getElementById('embedDirectLink');
+
+      // Set titles & iframe source
+      embedGameTitle.textContent = title;
+      embedGamePath.textContent = gameUrl;
+      embedDirectLink.href = gameUrl;
+      gameIframe.src = gameUrl;
+
+      // Reveal Embed Viewport and scroll smoothly into view
+      embedViewport.classList.remove('hidden');
+      embedViewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeGameEmbed() {
+      const embedViewport = document.getElementById('gameEmbedViewport');
+      const gameIframe = document.getElementById('gameIframe');
+
+      // Clear iframe source to stop background execution
+      gameIframe.src = 'about:blank';
+      embedViewport.classList.add('hidden');
+    }
+
+    function reloadEmbedFrame() {
+      const gameIframe = document.getElementById('gameIframe');
+      gameIframe.src = gameIframe.src;
+    }
+
+    function toggleEmbedFullscreen() {
+      const gameIframe = document.getElementById('gameIframe');
+      if (gameIframe.requestFullscreen) {
+        gameIframe.requestFullscreen();
+      } else if (gameIframe.webkitRequestFullscreen) {
+        gameIframe.webkitRequestFullscreen();
+      } else if (gameIframe.msRequestFullscreen) {
+        gameIframe.msRequestFullscreen();
+      }
+    }
+
+    function openPreviewModal(gameType) {
+      const modal = document.getElementById('previewModal');
+      const title = document.getElementById('modalTitle');
+      const icon = document.getElementById('modalIcon');
+      const playLink = document.getElementById('modalPlayLink');
+
+      if (gameType === 'granny') {
+        title.textContent = "Granny Web Recomp v1.5";
+        icon.className = "w-12 h-12 rounded-2xl bg-poki-purple flex items-center justify-center text-white font-display text-2xl font-bold";
+        icon.textContent = "👵";
+        playLink.onclick = function() {
+          closePreviewModal();
+          launchEmbeddedGame('game/', 'Granny Web Recomp v1.5');
+        };
+        playLink.className = "flex-1 py-3.5 bg-poki-green text-white font-display font-black text-lg text-center rounded-xl shadow-md uppercase hover:opacity-95 transition cursor-pointer";
+      } else {
+        title.textContent = "Slendrina: The Cellar";
+        icon.className = "w-12 h-12 rounded-2xl bg-poki-pink flex items-center justify-center text-white font-display text-2xl font-bold";
+        icon.textContent = "👻";
+        playLink.onclick = function() {
+          closePreviewModal();
+          launchEmbeddedGame('slendrinatc/', 'Slendrina: The Cellar');
+        };
+        playLink.className = "flex-1 py-3.5 bg-poki-purple text-white font-display font-black text-lg text-center rounded-xl shadow-md uppercase hover:opacity-95 transition cursor-pointer";
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+    }
+
+    function filterGames() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.poki-card');
+
+      cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function filterGamesMobile() {
+      const query = document.getElementById('mobileSearchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.poki-card');
+
+      cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
